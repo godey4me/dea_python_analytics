@@ -9,7 +9,7 @@ env_path = getcwd() + "/.env"
 load_dotenv(dotenv_path=env_path)
 
 # Function to establish the connection
-def postgres_connect(host: str = None, user: str = None, password: str = None, db_name: str = None, port: int = 5432) -> Connection:
+def postgres_connect(host: str = None, user: str = None, password: str = None, db_name: str = None, port: int = None) -> Connection:
 
     # Get the credentials from the env vars
     postgres_host = environ.get('POSTGRES_HOST')
