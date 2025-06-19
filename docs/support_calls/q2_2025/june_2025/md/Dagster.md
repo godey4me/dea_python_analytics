@@ -34,6 +34,16 @@ pip install dagster
 DAGSTER_POSTGRES_URL="postgresql://postgres:dea2025!@172.93.55.84:8070/data_engineer_academy"
 ```
 
+3. Create a YAML configuration file called `config.yaml`
+
+```yaml
+resources:
+  postgresql_db:
+    config:
+      postgres_url:
+        env: DAGSTER_POSTGRES_URL
+```
+
 ### Basic Usage - Creating a Pipeline
 
 - This pipeline will enable you to connect to PostgreSQL to get access to a table, perform a transformation, and then export the transformed DataFrame as a `.csv` file.
@@ -45,7 +55,7 @@ DAGSTER_POSTGRES_URL="postgresql://postgres:dea2025!@172.93.55.84:8070/data_engi
 ```python
 import os
 import pandas as pd
-from dagster import job, op, resource, Field
+from dagster import job, op, resource, Field, StringSource
 from sqlalchemy import create_engine
 ```
 
@@ -57,7 +67,7 @@ from sqlalchemy import create_engine
 # Resources are decorators
 ## Contains a parameter called config_schema
 @resource(config_schema={
-    "postgres_url" : Field(str, description="PostgreSQL connection")
+    "postgres_url" : Field(StringSource, description="PostgreSQL connection")
 })
 # resource will decorate the below function
 def postgresql_db(context):
@@ -73,14 +83,12 @@ def postgresql_db(context):
 ## Contains a parameter called required_resource_keys
 ## Used to enforce prerequisites for the operation
 @op(required_resource_keys={"postgresql_db"})
-
-# Define your procedure inside the input function
 def extract_table(context) -> pd.DataFrame:
     # Get the engine
     engine = context.resources.postgresql_db
 
     # Get the DataFrame
-    df = pd.read_sql_table("hospital_readmissions_json", con=engine)
+    df = pd.read_sql_table(table_name="hospital_readmissions_json", schema='dea', con=engine)
 
     # Add a log statement
     context.log.info(f"Loaded {len(df)} rows from the table.")
@@ -98,18 +106,14 @@ def transformation(df: pd.DataFrame) -> pd.DataFrame:
     # Get the first row from raw_json column
     row = df.iloc[0]['raw_json']
 
-    # Use a dictionary comprehension to get each
-    ## value as a list
-    row = {k: list(v) for k,v in row.items()}
-
     # Transform the row into a DataFrame
-    transformed_df = pd.DataFrame.from_dict(row)
+    transformed_df = pd.json_normalize([row])
 
     # Perform a transpose
     transformed_df = transformed_df.T
 
     # Reset the index and drop the extra index column
-    transformed_df.reset_index().drop('index', axis=1, inplace=True)
+    transformed_df.reset_index(inplace=True)
 
     # Rename the columns
     transformed_df.columns = ['tag', 'value']
@@ -152,6 +156,5 @@ def postgres_to_csv_job():
 #### Use Dagster CLI to Execute the Job
 
 ```python
-dagster job execute -f pipeline.py \
-    --resource-config '{"postgresql_db":{"config":{"postgres_url": "'"$DAGSTER_POSTGRES_URL"'"}}}'
+dagster job execute -f pipeline.py -c config.yaml
 ```
