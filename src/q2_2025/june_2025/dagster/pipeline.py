@@ -19,11 +19,16 @@ def extract_table(context) -> pd.DataFrame:
     # Get the engine
     engine = context.resources.postgresql_db
 
-    # Get the DataFrame
-    df = pd.read_sql_table(table_name="hospital_readmissions_json", schema='dea', con=engine)
+    try:
+        # Get the DataFrame
+        df = pd.read_sql_table(table_name="hospital_readmissions_json", schema='dea', con=engine)
 
-    # Add a log statement
-    context.log.info(f"Loaded {len(df)} rows from the table.")
+        # Add a log statement
+        context.log.info(f"Loaded {len(df)} rows from the table.")
+    
+    except Exception as e:
+        # Add a log statement that mentions the exception
+        context.log.error(f"Exception occurred: {e}")
 
     return df
 
