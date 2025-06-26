@@ -1,0 +1,5 @@
+resources:
+  postgresql_db:
+    config:
+      postgres_url:
+        env: DAGSTER_POSTGRES_URL

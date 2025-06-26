@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+setup.cfg
+setup.py
+dagster_web_etl/__init__.py
+dagster_web_etl/assets.py
+dagster_web_etl/definitions.py
+dagster_web_etl.egg-info/PKG-INFO
+dagster_web_etl.egg-info/SOURCES.txt
+dagster_web_etl.egg-info/dependency_links.txt
+dagster_web_etl.egg-info/requires.txt
+dagster_web_etl.egg-info/top_level.txt

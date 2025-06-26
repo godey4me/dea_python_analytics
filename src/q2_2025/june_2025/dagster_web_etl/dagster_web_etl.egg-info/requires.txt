@@ -1,0 +1,9 @@
+dagster
+dagster-cloud
+sqlalchemy
+psycopg2-binary
+pandas
+
+[dev]
+dagster-webserver
+pytest
