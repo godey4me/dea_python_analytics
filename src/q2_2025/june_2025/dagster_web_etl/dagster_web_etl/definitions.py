@@ -1,18 +1,18 @@
 import pandas as pd
-from dagster import Definitions, job, op, resource, Field
+from dagster import Definitions, job, op, resource, StringSource
 from sqlalchemy import create_engine
 
-@resource(config_schema={"postgres_url": Field(str)})
+@resource(config_schema={"postgres_url": StringSource})
 def pg_db(context):
     return create_engine(context.resource_config["postgres_url"])
 
 @op(required_resource_keys={"pg_db"})
 def extract_table(context) -> pd.DataFrame:
-    return pd.read_sql_table("your_table", con=context.resources.pg_db)
+    return pd.read_sql_table(table_name='sales-dataset', schema='dea_imtiaz_a', con=context.resources.pg_db)
 
 @op
 def transform_column(df):
-    df["name"] = df["name"].str.upper()
+    df["Order ID"] = df["Order ID"].str.lower()
     return df
 
 @op

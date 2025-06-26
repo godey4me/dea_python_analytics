@@ -1,5 +1,5 @@
 resources:
-  postgresql_db:
+  pg_db:
     config:
       postgres_url:
         env: DAGSTER_POSTGRES_URL
