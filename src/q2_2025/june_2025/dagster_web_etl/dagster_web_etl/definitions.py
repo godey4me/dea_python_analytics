@@ -2,10 +2,13 @@ import pandas as pd
 from dagster import Definitions, job, op, resource, StringSource
 from sqlalchemy import create_engine
 
+# Resources
+
 @resource(config_schema={"postgres_url": StringSource})
 def pg_db(context):
     return create_engine(context.resource_config["postgres_url"])
 
+# Operations
 @op(required_resource_keys={"pg_db"})
 def extract_table(context) -> pd.DataFrame:
     return pd.read_sql_table(table_name='sales-dataset', schema='dea_imtiaz_a', con=context.resources.pg_db)
@@ -18,6 +21,8 @@ def transform_column(df):
 @op
 def write_csv(df):
     df.to_csv("output.csv", index=False)
+
+# Job
 
 @job(resource_defs={"pg_db": pg_db})
 def postgres_to_csv_job():
