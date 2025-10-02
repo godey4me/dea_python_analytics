@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from azure.storage.blob import BlobServiceClient
 
 # Path to the .env file
-env_path = getcwd() + "/src/q4_2025/october_2025/october_2/.env"
+env_path = getcwd() + "/src/q4_2025/october_2025/october_2/new.env"
 
 # Load environment variables
 load_dotenv(env_path)
