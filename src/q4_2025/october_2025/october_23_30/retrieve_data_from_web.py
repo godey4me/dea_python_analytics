@@ -1,6 +1,5 @@
 from requests import get
 
-
 # URL
 url = "https://jsonplaceholder.typicode.com/photos"
 
