@@ -21,7 +21,7 @@ container_name = "parquet-files"
 container = service.get_container_client(container_name)
 
 # Create a blob client
-blob_client = container.get_blob_client('web_photos_table_v2.parquet')
+blob_client = container.get_blob_client('web_photos_table.parquet')
 
 # CSV file path
 parquet_path = getcwd() + "/data/parquet/photos_api_response.parquet"
