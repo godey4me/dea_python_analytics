@@ -94,3 +94,49 @@ result = ctx.execute(
 
 print(result)
 ```
+
+### Processing Methods
+
+#### Filtering
+
+- Filtering is possible using the `.filter()` method from both `LazyFrame` and `DataFrame` objects in polars.
+    - We use `pl.col()` to refer to a specific column in the DataFrame.
+
+```python
+import polars as pl
+
+data = {
+    'col_1' : [1,2,3,4,5],
+    'col_2' : [6,7,8,9,10]
+}
+
+df = pl.DataFrame(data)
+
+# Get the values from column 1 that are greater than 3
+df = df.filter(pl.col('col_1') > 3)
+
+print(df)
+```
+
+- You can also perform compound filtering by separating operators with `%` or `|` similar to pandas.
+
+- `pl.col()` also supports methods such as:
+    - `is_in()`
+    - `is_between()`
+
+```python
+
+country_list = ['usa', 'uae']
+
+data = {
+    'col_1' : ['charlie', 'chaplin', 'heineken'],
+    'col_2' : ['usa', 'uae', 'de']
+}
+
+df = pl.DataFrame(data)
+
+# Use .is_in()
+result_df = df.filter(pl.col('col_2').is_in(country_list))
+
+print(result_df)
+```
