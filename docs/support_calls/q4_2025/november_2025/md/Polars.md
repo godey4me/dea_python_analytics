@@ -140,3 +140,151 @@ result_df = df.filter(pl.col('col_2').is_in(country_list))
 
 print(result_df)
 ```
+
+#### Joins
+
+```python
+import polars as pl
+
+df1 = pl.DataFrame({"id":[1,2,3], "name":["Alice","Bob","Charlie"]})
+df2 = pl.DataFrame({"id":[2,3,4], "age":[25,30,35]})
+
+# Inner join on id
+result = df1.join(df2, on="id", how="inner")
+
+# Left join: keep all rows from df1, match where possible in df2
+result2 = df1.join(df2, on="id", how="left")
+```
+
+#### Group By
+
+- Aggregations are handled via `.agg()`
+
+```python
+df.group_by(
+    by="col1"               # or list of cols or expressions
+    , maintain_order=True   # optional: preserve input row order per group
+).agg(
+    pl.col("value").sum().alias("value_sum"),
+    pl.mean("other_col").alias("other_mean"),
+    # another expression
+)
+```
+
+#### Handling JSON
+
+- `.json_normalize()` exists
+
+```python
+import polars as pl
+
+data = [
+    {
+      "id": 1,
+      "name": "Cole Volk",
+      "fitness": {"height": 180, "weight": 85},
+    },
+    {
+      "id": 2,
+      "name": "Faye Raker",
+      "fitness": {"height": 155, "weight": 58},
+    },
+    {
+      "name": "Mark Reg",
+      "fitness": {"height": 170, "weight": 78},
+    },
+]
+
+df = pl.json_normalize(data, max_level=1)
+print(df)
+```
+
+- Turn arrays of values into separate rows via `.explode()`
+
+```python
+import polars as pl
+
+df = pl.DataFrame({
+    "letters": ["a", "a", "b", "c"],
+    "numbers": [[1], [2,3], [4,5], [6,7,8]],
+})
+
+print(df)
+
+exploded = df.explode("numbers")
+print(exploded)
+```
+
+### User Defined Functions
+
+- Element-wise transformations
+    - `map_elements()`
+
+```python
+import math
+import polars as pl
+
+df = pl.DataFrame({
+    "values": [10, 7, 1, 23]
+})
+
+def my_log(x):
+    return math.log(x)
+
+# Apply UDF to each element
+result = df.with_columns(
+    pl.col("values")
+      .map_elements(my_log, return_dtype=pl.Float64)
+      .alias("log_value")
+)
+
+print(result)
+```
+
+- Series-wide transformation
+    - `map_batches()`
+
+```python
+import polars as pl
+
+df = pl.DataFrame({
+    "keys": ["a","a","b","b"],
+    "values": [10, 7, 1, 23]
+})
+
+def diff_from_mean(series: pl.Series) -> pl.Series:
+    total = series.sum()
+    mean = total / len(series)
+    return series.apply(lambda v: v - mean)
+
+result = df.select(
+    pl.col("values").map_batches(diff_from_mean, return_dtype=pl.Float64)
+)
+
+print(result)
+```
+
+- Combining multiple columns
+    - Use `pl.struct()`
+
+```python
+import polars as pl
+
+df3 = pl.DataFrame({
+    "values_1": [1, 2, 3],
+    "values_2": [10, 20, 30]
+})
+
+def add_columns(arr1, arr2):
+    return arr1 + arr2
+
+out = df3.select(
+    pl.struct(["values_1", "values_2"])
+      .map_batches(
+         lambda s: s.struct.field("values_1") + s.struct.field("values_2"),
+         return_dtype=pl.Int64
+      ).alias("sum_vals")
+)
+
+print(out)
+```
