@@ -118,7 +118,7 @@ df = df.filter(pl.col('col_1') > 3)
 print(df)
 ```
 
-- You can also perform compound filtering by separating operators with `%` or `|` similar to pandas.
+- You can also perform compound filtering by separating operators with `&` or `|` similar to pandas.
 
 - `pl.col()` also supports methods such as:
     - `is_in()`
