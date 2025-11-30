@@ -1,6 +1,7 @@
+from os import getcwd
 from duckdb import connect, DuckDBPyConnection
 from typing import Optional
-from os import getcwd
+from uvicorn import run
 from fastapi import FastAPI, Depends, HTTPException, Query, status
 
 # Custom imports
