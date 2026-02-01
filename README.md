@@ -8,7 +8,7 @@
 - To get updates from the original source:  
      `git checkout rishov`
      `git pull upstream rishov`
-- To push your changes to your own repo:
+- To push your changes to your own repo:  
 `git add .`
 `git commit -m "Your descriptive message"`
 `git push origin main`
